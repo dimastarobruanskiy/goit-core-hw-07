@@ -18,6 +18,8 @@ def input_error(func):
             return "Enter user name."
         except KeyError:
             return "Contact not found."
+        except AttributeError:
+            return "Contact not found."
     return inner
 
 @input_error
@@ -40,9 +42,6 @@ def change_contact(args, book):
 
     record = book.find(name)
 
-    if record is None:
-        raise KeyError
-
     record.edit_phone(old_phone, new_phone)
 
     return "Contact updated."
@@ -53,10 +52,7 @@ def show_phone(args, book):
 
     record = book.find(name)
 
-    if record is None:
-        raise KeyError
-
-    return str(record)
+    return "; ".join(p.value for p in record.phones)
 
 def show_all(book):
     if not book.data:
@@ -71,8 +67,6 @@ def show_all(book):
 @input_error
 def delete_contact(args, book):
     name = args[0]
-    if name not in book.data:
-        raise KeyError
     book.delete(name)
     return "Deleted."
 
@@ -81,9 +75,6 @@ def add_birthday(args, book):
     name, birthday = args
 
     record = book.find(name)
-
-    if record is None:
-        raise KeyError
 
     record.add_birthday(birthday)
 
@@ -94,14 +85,14 @@ def show_birthday(args, book):
     name = args[0]
 
     record = book.find(name)
-
+    
     if record is None:
-        raise KeyError
-
+        raise KeyError  # Це коректно передасть помилку декоратору, який поверне "Contact not found."
+        
     if record.birthday is None:
-        return "Birthday not found."
+        return f"No birthday saved for {name}."
 
-    return f"{record.name.value}'s birthday is {record.birthday.value.strftime('%d.%m.%Y')}."
+    return f"{record.name.value}'s birthday is {record.birthday.value}."
 
 @input_error
 def birthdays(args, book):

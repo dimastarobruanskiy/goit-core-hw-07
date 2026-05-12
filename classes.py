@@ -29,10 +29,10 @@ class Phone(Field):
 class Birthday(Field):
     def __init__(self, value):
         try:
-            self.value = datetime.strptime(value, "%d.%m.%Y").date()
+            date = datetime.strptime(value, "%d.%m.%Y")
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
-        
+        super().__init__(value)
 class Record:
     def __init__(self, name):
         self.name = Name(name)
@@ -72,7 +72,7 @@ class Record:
         phones = "; ".join(p.value for p in self.phones)
         
         if self.birthday:
-            birthday_str = f", birthday: {self.birthday.value.strftime('%d.%m.%Y')}"
+            birthday_str = f", birthday: {self.birthday.value}"
         else:
             birthday_str = ""
             
@@ -99,7 +99,7 @@ class AddressBook(UserDict):
             if record.birthday is None:
                 continue
             
-            bday = record.birthday.value
+            bday = datetime.strptime(record.birthday.value, "%d.%m.%Y").date()
             
             try:
                 bday_this_year = bday.replace(year=today.year)
